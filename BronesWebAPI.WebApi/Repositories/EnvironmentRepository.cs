@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Dapper;
 using BronesWebAPI.WebApi.Models;
+using System.Diagnostics;
 
 namespace BronesWebAPI.WebApi.Repositories
 
@@ -38,8 +39,10 @@ namespace BronesWebAPI.WebApi.Repositories
 
         public async Task Add(Models.Environments environments)
         {
+            Console.WriteLine("Reached Add method");
             //_environments.Add(environment);
             await InsertAsync(environments.EnvironmentId, environments.Route, environments.OwnerUserId);
+            Console.WriteLine("Executed InsertAsync method");
         }
 
         public async Task Update(Guid id, Models.Environments updatedEnvironment)
@@ -70,11 +73,13 @@ namespace BronesWebAPI.WebApi.Repositories
 
         public async Task InsertAsync(Guid EnvironmentId, string Route, Guid OwnerUserId)
         {
+            Console.WriteLine("Reached InsertAsync");
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
-                var query = "INSERT INTO [Environnments](EnvironmentId, Route, OwnerUserId) VALUES (@EnvironmentId, @Route, @OwnerUserId)";
+                var query = "INSERT INTO [Environments] (EnvironmentId, Route, OwnerUserId) VALUES (@EnvironmentId, @Route, @OwnerUserId)";
 
                 await sqlConnection.ExecuteAsync(query, new { EnvironmentId, Route, OwnerUserId });
+                Console.WriteLine("Executed query");
             }
         }
 
@@ -83,19 +88,19 @@ namespace BronesWebAPI.WebApi.Repositories
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
                 var query = @"UPDATE [Environments] 
-                              SET EnvironmentId = @NewEnvironmentId, Route = @Route, OwnerUserId = @OwnerUserId
+                              SET Route = @Route
                               WHERE EnvironmentId = @OldEnvironmentId";
 
                 await sqlConnection.ExecuteAsync(query, new { NewEnvironmentId = updatedEnvironment.EnvironmentId, updatedEnvironment.Route, updatedEnvironment.OwnerUserId, OldEnvironmentId = Id });
             }
         }
 
-        public async Task DeleteAsync(string Id)
+        public async Task DeleteAsync(string EnvironmentId)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
-                var query = "DELETE FROM [Environments] WHERE Id = @Id";
-                await sqlConnection.ExecuteAsync(query, new { Id = Id });
+                var query = "DELETE FROM [Environments] WHERE EnvironmentId = @Id";
+                await sqlConnection.ExecuteAsync(query, new { Id = EnvironmentId });
             }
         }
 
