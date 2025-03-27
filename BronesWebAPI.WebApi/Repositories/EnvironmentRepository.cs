@@ -73,13 +73,11 @@ namespace BronesWebAPI.WebApi.Repositories
 
         public async Task InsertAsync(Guid EnvironmentId, string Route, Guid OwnerUserId)
         {
-            Console.WriteLine("Reached InsertAsync");
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
                 var query = "INSERT INTO [Environments] (EnvironmentId, Route, OwnerUserId) VALUES (@EnvironmentId, @Route, @OwnerUserId)";
 
                 await sqlConnection.ExecuteAsync(query, new { EnvironmentId, Route, OwnerUserId });
-                Console.WriteLine("Executed query");
             }
         }
 

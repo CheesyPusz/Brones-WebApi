@@ -13,6 +13,7 @@ var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionS
 var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
 
 builder.Services.AddTransient<IEnvironmentRepository, EnvironmentRepository>(provider => new EnvironmentRepository(sqlConnectionString));
+builder.Services.AddTransient<IPatientInfoRepository, PatientInfoRepository>(provider => new PatientInfoRepository(sqlConnectionString));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IAuthenticationService, AspNetIdentityAuthenticationService>();

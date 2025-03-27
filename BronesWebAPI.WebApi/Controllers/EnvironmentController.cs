@@ -36,13 +36,11 @@ namespace BronesWebAPI.WebApi.Controllers
         [HttpPost(Name = "AddEnvironment")]
         public Models.Environments Post([FromBody] Models.Environments environment)
         {
-            Console.WriteLine("Reached Post method");
             var currentUserId = _authenticationService.GetCurrentAuthenticatedUserId();
 
             environment.EnvironmentId = Guid.NewGuid();
             environment.OwnerUserId = Guid.Parse(currentUserId);
             _environmentRepository.Add(environment);
-            Console.WriteLine("Executed post method");
             return environment;
         }
 

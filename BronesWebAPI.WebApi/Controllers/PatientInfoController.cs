@@ -5,31 +5,33 @@ namespace BronesWebAPI.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class PatientInfoController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        //private readonly IAuthenticationService _authenticationService;
-        private readonly ILogger<UserController> _logger;
+        private readonly IPatientInfoRepository _userRepository;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly ILogger<PatientInfoController> _logger;
 
 
-        public UserController(IUserRepository userRepository, IAuthenticationService authenticationService, ILogger<UserController> logger) 
+        public PatientInfoController(IPatientInfoRepository userRepository, IAuthenticationService authenticationService, ILogger<PatientInfoController> logger) 
         {
             _userRepository = userRepository;
-            //_authenticationService = authenticationService;
+            _authenticationService = authenticationService;
             _logger = logger;
         }
 
-        [HttpGet("{id:guid}",Name = "GetUser")]
-        public async Task<IEnumerable<Models.Users>> Get(Guid UserId)
+        [HttpGet(Name = "GetUser")]
+        public async Task<IEnumerable<Models.PatientInfo>> Get()
         {
-            return await _userRepository.GetById(UserId);
+            var currentUserId = Guid.Parse(_authenticationService.GetCurrentAuthenticatedUserId());
+            return await _userRepository.GetById(currentUserId);
   
         }
 
         [HttpPost(Name = "AddUser")]
-        public Models.Users Post([FromBody] Models.Users user)
+        public Models.PatientInfo Post([FromBody] Models.PatientInfo user)
         {
             user.UserId = Guid.NewGuid();
+            user.OwnerUserId = Guid.Parse(_authenticationService.GetCurrentAuthenticatedUserId());
             _userRepository.Add(user);
             return user;
         }
@@ -49,7 +51,7 @@ namespace BronesWebAPI.WebApi.Controllers
 
         //we gaan geen users hoeven updaten maar hier heb je m voor nu
         [HttpPut("{id:Guid}", Name = "UpdateUser")]
-        public async Task<IActionResult> Put(Guid UserId, [FromBody] Models.Users updatedUser)
+        public async Task<IActionResult> Put(Guid UserId, [FromBody] Models.PatientInfo updatedUser)
         {
             var user = await _userRepository.GetById(UserId);
             if (user == null)
