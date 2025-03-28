@@ -8,7 +8,7 @@ namespace BronesWebAPI.WebApi.Repositories
         Task Delete(Guid UserId);
         Task DeleteAsync(Guid UserId);
         Task<IEnumerable<PatientInfo>> GetAll();
-        Task<IEnumerable<PatientInfo?>> GetById(Guid UserId);
+        Task<Models.PatientInfo?> GetById(Guid OwnerUserId);
         Task InsertAsync(Guid UserId, Guid OwnerUserId, string Name, DateOnly DateOfBirth, string Behandelplan, string NaamArts, DateOnly EersteAfspraak);
         Task<IEnumerable<PatientInfo>> ReadAsync();
         Task Update(Guid UserId, PatientInfo updatedUser);

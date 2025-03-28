@@ -20,7 +20,7 @@ namespace BronesWebAPI.WebApi.Controllers
         }
 
         [HttpGet(Name = "GetUser")]
-        public async Task<IEnumerable<Models.PatientInfo>> Get()
+        public async Task<Models.PatientInfo> Get()
         {
             var currentUserId = Guid.Parse(_authenticationService.GetCurrentAuthenticatedUserId());
             return await _userRepository.GetById(currentUserId);
