@@ -18,11 +18,12 @@ namespace BronesWebAPI.WebApi.Repositories
         }
 
 
-        public async Task<IEnumerable<Models.PatientInfo?>> GetById(Guid OwnerUserId)
+        public async Task<Models.PatientInfo?> GetById(Guid OwnerUserId)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
-                return await sqlConnection.QueryAsync<Models.PatientInfo>("SELECT * FROM [PatientInfo] WHERE OwnerUserId = @OwnerUserId", new { OwnerUserId = OwnerUserId });
+                var result = await sqlConnection.QueryAsync<Models.PatientInfo>("SELECT * FROM [PatientInfo] WHERE OwnerUserId = @OwnerUserId", new { OwnerUserId });
+                return result.FirstOrDefault();
             }
         }
 
