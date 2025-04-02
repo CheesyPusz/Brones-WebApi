@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Dapper;
+using BronesWebAPI.WebApi.Models;
 
 namespace BronesWebAPI.WebApi.Repositories
 {
@@ -18,12 +19,24 @@ namespace BronesWebAPI.WebApi.Repositories
         }
 
 
-        public async Task<Models.PatientInfo?> GetById(Guid OwnerUserId)
+        //public async Task<PatientInfo?> GetById(Guid Id)
+        //{
+        //    using (var sqlConnection = new SqlConnection(_sqlConnectionString))
+        //    {
+        //        var query = "SELECT * FROM [PatientInfo] WHERE OwnerUserId = @Id";
+        //        return await sqlConnection.QuerySingleOrDefaultAsync<PatientInfo>(query, new { Id });
+        //    }
+        //}
+
+        public async Task<PatientInfo?> GetById(Guid OwnerUserId)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
-                var result = await sqlConnection.QueryAsync<Models.PatientInfo>("SELECT * FROM [PatientInfo] WHERE OwnerUserId = @OwnerUserId", new { OwnerUserId });
-                return result.FirstOrDefault();
+                var query = "SELECT * FROM [PatientInfo] WHERE OwnerUserId = @OwnerUserId";
+                var parameters = new { OwnerUserId };
+
+                var result = await sqlConnection.QuerySingleOrDefaultAsync<PatientInfo>(query, parameters);
+                return result;
             }
         }
 
@@ -33,7 +46,7 @@ namespace BronesWebAPI.WebApi.Repositories
             {
                 users.UserId = Guid.NewGuid();
             }
-            await InsertAsync(users.UserId.Value, users.OwnerUserId.Value, users.Name, DateOnly.FromDateTime(users.BirthDate), users.BehandelPlan, users.NaamArts, DateOnly.FromDateTime(users.EersteAfspraak));
+            await InsertAsync(users.UserId.Value, users.OwnerUserId.Value, users.Name, users.DateOfBirth, users.BehandelPlan, users.NaamArts, users.EersteAfspraak);
         }
 
         public async Task Update(Guid UserId, Models.PatientInfo updatedUser)
@@ -62,30 +75,41 @@ namespace BronesWebAPI.WebApi.Repositories
             }
         }
 
-        public async Task InsertAsync(Guid UserId, Guid OwnerUserId, string Name, DateOnly DateOfBirth, string Behandelplan, string NaamArts, DateOnly EersteAfspraak)
+        public async Task InsertAsync(Guid UserId, Guid OwnerUserId, string Name, string DateOfBirth, string Behandelplan, string NaamArts, string EersteAfspraak)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
                 var query = "INSERT INTO [PatientInfo] (UserId, OwnerUserId, Name, DateOfBirth, Behandelplan, NaamArts, EersteAfspraak) VALUES (@UserId, @OwnerUserId, @Name, @DateOfBirth, @Behandelplan, @NaamArts, @EersteAfspraak)";
 
-                try
+                await sqlConnection.ExecuteAsync(query, new
                 {
-                    var result = await sqlConnection.ExecuteAsync(query, new
-                    {
-                        UserId,
-                        OwnerUserId,
-                        Name,
-                        DateOfBirth = DateOfBirth.ToDateTime(TimeOnly.MinValue),
-                        Behandelplan,
-                        NaamArts,
-                        EersteAfspraak = EersteAfspraak.ToDateTime(TimeOnly.MinValue)
-                    });
-                    Console.WriteLine("Rows affected: " + result);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error executing query: " + ex.Message);
-                }
+                    UserId,
+                    OwnerUserId,
+                    Name,
+                    DateOfBirth,
+                    Behandelplan,
+                    NaamArts,
+                    EersteAfspraak
+                });
+
+                //try
+                //{
+                //    var result = await sqlConnection.ExecuteAsync(query, new
+                //    {
+                //        UserId,
+                //        OwnerUserId,
+                //        Name,
+                //        DateOfBirth = TimeOnly.MinValue,
+                //        Behandelplan,
+                //        NaamArts,
+                //        EersteAfspraak = TimeOnly.MinValue
+                //    });
+                //    Console.WriteLine("Rows affected: " + result);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine("Error executing query: " + ex.Message);
+                //}
             }
         }
 
@@ -98,7 +122,7 @@ namespace BronesWebAPI.WebApi.Repositories
                               SET UserId = @NewUserId, Name = @Name, BirthDate = @BirthDate, BehandelPlan = @BehandelPlan, NaamArts = @NaamArts, EersteAfspraak = @EersteAfspraak
                               WHERE UserId = @OldUserId";
 
-                await sqlConnection.ExecuteAsync(query, new { NewUserId = updatedUsers.UserId, updatedUsers.Name, updatedUsers.BirthDate, updatedUsers.BehandelPlan, updatedUsers.NaamArts, updatedUsers.EersteAfspraak, OldUserId = UserId });
+                await sqlConnection.ExecuteAsync(query, new { NewUserId = updatedUsers.UserId, updatedUsers.Name, updatedUsers.DateOfBirth, updatedUsers.BehandelPlan, updatedUsers.NaamArts, updatedUsers.EersteAfspraak, OldUserId = UserId });
             }
         }
 
