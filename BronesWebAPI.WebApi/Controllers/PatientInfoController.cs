@@ -20,19 +20,27 @@ namespace BronesWebAPI.WebApi.Controllers
         }
 
         [HttpGet(Name = "GetUser")]
-        public async Task<Models.PatientInfo> Get()
+        public async Task<ActionResult<Models.PatientInfo>> Get()
         {
             var currentUserId = Guid.Parse(_authenticationService.GetCurrentAuthenticatedUserId());
-            return await _userRepository.GetById(currentUserId);
-  
+            var patientInfo = await _userRepository.GetById(currentUserId);
+            Console.WriteLine(patientInfo.ToString());
+            if (patientInfo == null)
+            {
+                return NotFound(new { message = "PatientInfo not found" });
+            }
+
+            return Ok(patientInfo);
         }
 
         [HttpPost(Name = "AddUser")]
-        public Models.PatientInfo Post([FromBody] Models.PatientInfo user)
+        public async Task<Models.PatientInfo> Post([FromBody] Models.PatientInfo user)
         {
             user.UserId = Guid.NewGuid();
             user.OwnerUserId = Guid.Parse(_authenticationService.GetCurrentAuthenticatedUserId());
-            _userRepository.Add(user);
+
+            //user.OwnerUserId = Guid.NewGuid();
+            await _userRepository.Add(user);
             return user;
         }
 
