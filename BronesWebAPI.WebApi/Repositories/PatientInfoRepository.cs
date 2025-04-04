@@ -46,17 +46,17 @@ namespace BronesWebAPI.WebApi.Repositories
             {
                 users.UserId = Guid.NewGuid();
             }
-            await InsertAsync(users.UserId.Value, users.OwnerUserId.Value, users.Name, users.DateOfBirth, users.BehandelPlan, users.NaamArts, users.EersteAfspraak);
+            await InsertAsync(users.UserId.Value, users.OwnerUserId.Value, users.Name, users.DateOfBirth, users.BehandelPlan, users.NaamArts, users.EersteAfspraak, users.PositionX);
         }
 
-        public async Task Update(Guid UserId, Models.PatientInfo updatedUser)
-        {
-            var user = await GetById(UserId);
-            if (user != null)
-            {
-                await UpdateAsync(UserId, updatedUser);
-            }
-        }
+        //public async Task Update(Guid UserId, Models.PatientInfo updatedUser)
+        //{
+        //    var user = await GetById(UserId);
+        //    //if (user != null)
+        //    //{
+        //    //    await UpdateAsync(UserId, updatedUser);
+        //    //}
+        //}
 
         public async Task Delete(Guid UserId)
         {
@@ -75,11 +75,11 @@ namespace BronesWebAPI.WebApi.Repositories
             }
         }
 
-        public async Task InsertAsync(Guid UserId, Guid OwnerUserId, string Name, string DateOfBirth, string Behandelplan, string NaamArts, string EersteAfspraak)
+        public async Task InsertAsync(Guid UserId, Guid OwnerUserId, string Name, string DateOfBirth, string Behandelplan, string NaamArts, string EersteAfspraak, float PositionX)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
-                var query = "INSERT INTO [PatientInfo] (UserId, OwnerUserId, Name, DateOfBirth, Behandelplan, NaamArts, EersteAfspraak) VALUES (@UserId, @OwnerUserId, @Name, @DateOfBirth, @Behandelplan, @NaamArts, @EersteAfspraak)";
+                var query = "INSERT INTO [PatientInfo] (UserId, OwnerUserId, Name, DateOfBirth, Behandelplan, NaamArts, EersteAfspraak, PositionX) VALUES (@UserId, @OwnerUserId, @Name, @DateOfBirth, @Behandelplan, @NaamArts, @EersteAfspraak, @PositionX)";
 
                 await sqlConnection.ExecuteAsync(query, new
                 {
@@ -89,7 +89,8 @@ namespace BronesWebAPI.WebApi.Repositories
                     DateOfBirth,
                     Behandelplan,
                     NaamArts,
-                    EersteAfspraak
+                    EersteAfspraak,
+                    PositionX
                 });
 
                 //try
@@ -114,15 +115,15 @@ namespace BronesWebAPI.WebApi.Repositories
         }
 
 
-        public async Task UpdateAsync(Guid UserId, Models.PatientInfo updatedUsers)
+        public async Task UpdateAsync(Guid OwnerUserId, float PositionX)
         {
             using (var sqlConnection = new SqlConnection(_sqlConnectionString))
             {
                 var query = @"UPDATE [PatientInfo] 
-                              SET UserId = @NewUserId, Name = @Name, BirthDate = @BirthDate, BehandelPlan = @BehandelPlan, NaamArts = @NaamArts, EersteAfspraak = @EersteAfspraak
-                              WHERE UserId = @OldUserId";
+                              SET PositionX = @PositionX
+                              WHERE OwnerUserId = @OwnerUserId";
 
-                await sqlConnection.ExecuteAsync(query, new { NewUserId = updatedUsers.UserId, updatedUsers.Name, updatedUsers.DateOfBirth, updatedUsers.BehandelPlan, updatedUsers.NaamArts, updatedUsers.EersteAfspraak, OldUserId = UserId });
+                await sqlConnection.ExecuteAsync(query, new { PositionX, OwnerUserId });
             }
         }
 

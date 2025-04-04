@@ -12,7 +12,7 @@ namespace BronesWebAPI.WebApi.Controllers
         private readonly ILogger<PatientInfoController> _logger;
 
 
-        public PatientInfoController(IPatientInfoRepository userRepository, IAuthenticationService authenticationService, ILogger<PatientInfoController> logger) 
+        public PatientInfoController(IPatientInfoRepository userRepository, IAuthenticationService authenticationService, ILogger<PatientInfoController> logger)
         {
             _userRepository = userRepository;
             _authenticationService = authenticationService;
@@ -58,18 +58,25 @@ namespace BronesWebAPI.WebApi.Controllers
         }
 
         //we gaan geen users hoeven updaten maar hier heb je m voor nu
-        [HttpPut("{id:Guid}", Name = "UpdateUser")]
-        public async Task<IActionResult> Put(Guid UserId, [FromBody] Models.PatientInfo updatedUser)
+        [HttpPut("{PositionX} ", Name = "UpdateUser")]
+        public async Task<IActionResult> Put(string PositionX)
         {
-            var user = await _userRepository.GetById(UserId);
-            if (user == null)
-            {
-                return NotFound(new { message = "Environment not found" });
-            }
+            //var user = await _userRepository.GetById(id);
+            //if (user == null)
+            //{
+            //    return NotFound(new { message = "Environment not found" });
+            //}
+
+            Console.WriteLine("Test");
+            var currentUserId = _authenticationService.GetCurrentAuthenticatedUserId();
+            if (currentUserId == null)
+                BadRequest();
+
+            var positionX = float.Parse(PositionX);
 
             // Use async update method
-            await _userRepository.UpdateAsync(UserId, updatedUser);
-            return Ok(updatedUser);
+            await _userRepository.UpdateAsync(Guid.Parse(currentUserId), positionX);
+            return Ok();
         }
     }
 }
